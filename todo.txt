@@ -1,3 +1,3 @@
-1. To Initialize the cart at the user creation with empty Array
+1. To Initialize the cart at the user creation with empty Array -- DONE
 2. to form the payload for the Order
 3. to dynamically calculate the total of the cart
