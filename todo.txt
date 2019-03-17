@@ -1,3 +1,5 @@
 1. To Initialize the cart at the user creation with empty Array -- DONE
-2. to form the payload for the Order
+2. to form the payload for the Order -- DONE
 3. to dynamically calculate the total of the cart
+4. To integrate order button with API
+5. to delete the cart when user deletes the account
