@@ -15,12 +15,9 @@
 
 </table>
 
-<div class="formWrapper">
-  <form id="sessionCreate" action="/api/order" method="POST">
-    <div class="formError"></div>
-    <h1>Total is 200$</h1>
-    <div class="inputWrapper ctaWrapper">
-      <button type="submit" class="cta blue">Click to Order</button>
-    </div>
-  </form>
+<hr />
+
+<div class="centered">
+  <h1 id="total"></h1>
+  <button type="submit" class="cta blue" onclick="app.placeOrder()">Click to Order</button>
 </div>
