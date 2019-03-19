@@ -15,7 +15,7 @@ app.config = {
 app.client = {}
 
 // Interface for making API calls
-app.client.request = function(headers,path,method,queryStringObject,payload,callback){
+app.client.request = (headers,path,method,queryStringObject,payload,callback) => {
 
   // Set defaults
   headers = typeof(headers) == 'object' && headers !== null ? headers : {}
@@ -58,7 +58,7 @@ app.client.request = function(headers,path,method,queryStringObject,payload,call
   }
 
   // When the request comes back, handle the response
-  xhr.onreadystatechange = function() {
+  xhr.onreadystatechange = () => {
       if(xhr.readyState == XMLHttpRequest.DONE) {
         let statusCode = xhr.status
         let responseReturned = xhr.responseText
@@ -83,8 +83,8 @@ app.client.request = function(headers,path,method,queryStringObject,payload,call
 }
 
 // Bind the logout button
-app.bindLogoutButton = function(){
-  document.getElementById("logoutButton").addEventListener("click", function(e){
+app.bindLogoutButton = () => {
+  document.getElementById("logoutButton").addEventListener("click", (e) => {
 
     // Stop it from redirecting anywhere
     e.preventDefault()
@@ -96,7 +96,7 @@ app.bindLogoutButton = function(){
 }
 
 // Place the order
-app.placeOrder = function(){
+app.placeOrder = () => {
 
   // Get the current email
   const email = typeof(app.config.sessionToken.email) == 'string' ? app.config.sessionToken.email : false
@@ -104,10 +104,10 @@ app.placeOrder = function(){
   const payload = {
     'email' : email
   }
-  app.client.request(undefined,'api/order','POST',undefined,payload,function(statusCode,responsePayload){
+  app.client.request(undefined,'api/order','POST',undefined,payload,(statusCode,responsePayload) => {
     if([200,201].indexOf(statusCode) != -1){
       alert("Your Order is Placed Successfully")
-      app.client.request(undefined,'api/cart','DELETE',payload,undefined,function(statusCode,responsePayload){
+      app.client.request(undefined,'api/cart','DELETE',payload,undefined,(statusCode,responsePayload) => {
         if([200,201].indexOf(statusCode) > -1){
           window.location = '/dashboard/menu'
         } else {
@@ -121,7 +121,7 @@ app.placeOrder = function(){
 }
 
 // Log the user out then redirect them
-app.logUserOut = function(redirectUser){
+app.logUserOut = (redirectUser) => {
   // Set redirectUser to default to true
   redirectUser = typeof(redirectUser) == 'boolean' ? redirectUser : true
 
@@ -132,7 +132,7 @@ app.logUserOut = function(redirectUser){
   let queryStringObject = {
     'id' : tokenId
   }
-  app.client.request(undefined,'api/tokens','DELETE',queryStringObject,undefined,function(statusCode,responsePayload){
+  app.client.request(undefined,'api/tokens','DELETE',queryStringObject,undefined,(statusCode,responsePayload) => {
     // Set the app.config token as false
     app.setSessionToken(false)
 
@@ -145,12 +145,12 @@ app.logUserOut = function(redirectUser){
 }
 
 // Bind the forms
-app.bindForms = function(){
+app.bindForms = () => {
   if(document.querySelector("form")){
 
     let allForms = document.querySelectorAll("form")
     for(let i = 0 i < allForms.length i++){
-        allForms[i].addEventListener("submit", function(e){
+        allForms[i].addEventListener("submit", (e) => {
 
         // Stop it from submitting
         e.preventDefault()
@@ -208,7 +208,7 @@ app.bindForms = function(){
         let queryStringObject = method == 'DELETE' ? payload : {}
 
         // Call the API
-        app.client.request(undefined,path,method,queryStringObject,payload,function(statusCode,responsePayload){
+        app.client.request(undefined,path,method,queryStringObject,payload,(statusCode,responsePayload) => {
           // Display an error on the form if needed
           if(statusCode !== 200){
 
@@ -239,7 +239,7 @@ app.bindForms = function(){
 }
 
 // Form response processor
-app.formResponseProcessor = function(formId,requestPayload,responsePayload){
+app.formResponseProcessor = (formId,requestPayload,responsePayload) => {
   let functionToCall = false
   // If account creation was successful, try to immediately log the user in
   if(formId == 'accountCreate'){
@@ -249,7 +249,7 @@ app.formResponseProcessor = function(formId,requestPayload,responsePayload){
       'password' : requestPayload.password
     }
 
-    app.client.request(undefined,'api/login','POST',undefined,newPayload,function(newStatusCode,newResponsePayload){
+    app.client.request(undefined,'api/login','POST',undefined,newPayload,(newStatusCode,newResponsePayload) => {
       // Display an error on the form if needed
       if(newStatusCode !== 200){
 
@@ -297,7 +297,7 @@ app.formResponseProcessor = function(formId,requestPayload,responsePayload){
 }
 
 // Get the session token from localstorage and set it in the app.config object
-app.getSessionToken = function(){
+app.getSessionToken = () => {
   let tokenString = localStorage.getItem('token')
   if(typeof(tokenString) == 'string'){
     try{
@@ -316,7 +316,7 @@ app.getSessionToken = function(){
 }
 
 // Set (or remove) the loggedIn class from the body
-app.setLoggedInClass = function(add){
+app.setLoggedInClass = (add) => {
   let target = document.querySelector("body")
   if(add){
     target.classList.add('loggedIn')
@@ -326,7 +326,7 @@ app.setLoggedInClass = function(add){
 }
 
 // Set the session token in the app.config object as well as localstorage
-app.setSessionToken = function(token){
+app.setSessionToken = (token) => {
   app.config.sessionToken = token
   let tokenString = JSON.stringify(token)
   localStorage.setItem('token',tokenString)
@@ -338,7 +338,7 @@ app.setSessionToken = function(token){
 }
 
 // Renew the token
-app.renewToken = function(callback){
+app.renewToken = (callback) => {
   let currentToken = typeof(app.config.sessionToken) == 'object' ? app.config.sessionToken : false
   if(currentToken){
     // Update the token with a new expiration
@@ -346,12 +346,12 @@ app.renewToken = function(callback){
       'id' : currentToken.id,
       'extend' : true,
     }
-    app.client.request(undefined,'api/tokens','PUT',undefined,payload,function(statusCode,responsePayload){
+    app.client.request(undefined,'api/tokens','PUT',undefined,payload,(statusCode,responsePayload) =>{
       // Display an error on the form if needed
       if(statusCode == 200){
         // Get the new token details
         let queryStringObject = {'id' : currentToken.id}
-        app.client.request(undefined,'api/tokens','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+        app.client.request(undefined,'api/tokens','GET',queryStringObject,undefined,(statusCode,responsePayload) => {
           // Display an error on the form if needed
           if(statusCode == 200){
             app.setSessionToken(responsePayload)
@@ -373,7 +373,7 @@ app.renewToken = function(callback){
 }
 
 // Load data on the page
-app.loadDataOnPage = function(){
+app.loadDataOnPage = () => {
   // Get the current page from the body class
   let bodyClasses = document.querySelector("body").classList
   let primaryClass = typeof(bodyClasses[0]) == 'string' ? bodyClasses[0] : false
@@ -400,7 +400,7 @@ app.loadDataOnPage = function(){
 }
 
 // Load the dashboard page specifically
-app.loadMenuPage = function(){
+app.loadMenuPage = () => {
   // Get the phone number from the current token, or log the user out if none is there
   let email = typeof(app.config.sessionToken.email) == 'string' ? app.config.sessionToken.email : false
   if(email){
@@ -408,7 +408,7 @@ app.loadMenuPage = function(){
     let queryStringObject = {
       email
     }
-    app.client.request(undefined,'api/menu','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+    app.client.request(undefined,'api/menu','GET',queryStringObject,undefined,(statusCode,responsePayload) => {
       if(statusCode == 200){
         // show menu
         let menuItems = typeof(responsePayload) == 'object' && responsePayload instanceof Array && responsePayload.length > 0 ? responsePayload : []
@@ -416,7 +416,7 @@ app.loadMenuPage = function(){
           // Remove No checks message
           document.getElementById("noChecksMessage").style.display = 'none'
           // Show each created check as a new row in the table
-          menuItems.forEach(function(item,index){
+          menuItems.forEach((item,index) => {
             let table = document.getElementById("menuListTable")
             let tr = table.insertRow(-1)
             tr.classList.add('checkRow')
@@ -445,7 +445,7 @@ app.loadMenuPage = function(){
 }
 
 // Load the cart page specifically
-app.loadCartPage = function(){
+app.loadCartPage = () => {
   // Get the email number from the current token, or log the user out if none is there
   let email = typeof(app.config.sessionToken.email) == 'string' ? app.config.sessionToken.email : false
   if(email){
@@ -453,7 +453,7 @@ app.loadCartPage = function(){
     let queryStringObject = {
       email
     }
-    app.client.request(undefined,'api/cart','GET',queryStringObject,undefined,function(statusCode,responsePayload){
+    app.client.request(undefined,'api/cart','GET',queryStringObject,undefined,(statusCode,responsePayload) => {
       if(statusCode == 200){
         // show items in cart
         let cartItems = typeof(responsePayload) == 'object' && responsePayload instanceof Array && responsePayload.length > 0 ? responsePayload : []
@@ -463,7 +463,7 @@ app.loadCartPage = function(){
           // calculate the total to display
           let total = 0
           // Show each created check as a new row in the table
-          cartItems.forEach(function(item, index){
+          cartItems.forEach((item, index) => {
             let table = document.getElementById("cartListTable")
             let tr = table.insertRow(-1)
             tr.classList.add('checkRow')
@@ -503,7 +503,7 @@ app.cartActions = (id, action) => {
       'action' : action,
       'itemId' : id
     }
-    app.client.request(undefined,'api/cart','PUT',undefined,payload,function(statusCode,responsePayload){
+    app.client.request(undefined,'api/cart','PUT',undefined,payload,(statusCode,responsePayload) => {
       if(action == 'update'){
         if(statusCode == 200){
           console.log("Added Successfully")
@@ -535,9 +535,9 @@ app.cartActions = (id, action) => {
 }
 
 // Loop to renew token often
-app.tokenRenewalLoop = function(){
-  setInterval(function(){
-    app.renewToken(function(err){
+app.tokenRenewalLoop = () => {
+  setInterval(() => {
+    app.renewToken((err) => {
       if(!err){
         console.log("Token renewed successfully @ "+Date.now())
       }
@@ -546,7 +546,7 @@ app.tokenRenewalLoop = function(){
 }
 
 // Init (bootstrapping)
-app.init = function(){
+app.init = () => {
 
   // Bind all form submissions
   app.bindForms()
@@ -566,6 +566,6 @@ app.init = function(){
 }
 
 // Call the init processes after the window loads
-window.onload = function(){
+window.onload = ()=>{
   app.init()
 }
